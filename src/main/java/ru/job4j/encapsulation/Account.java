@@ -1,4 +1,4 @@
-package encapsulation;
+package ru.job4j.encapsulation;
 
 public class Account {
     private int balance;
