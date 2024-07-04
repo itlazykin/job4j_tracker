@@ -8,7 +8,7 @@ public class Library {
         System.out.println();
     }
 
-    public static void print(Book[] library, String name) {
+    public static void find(Book[] library, String name) {
         for (Book books : library) {
             if (books.getName().equals(name)) {
                 System.out.println(books.getName() + " - " + books.getPage());
@@ -32,6 +32,6 @@ public class Library {
         print(books);
         swap(books, 0, 3);
         print(books);
-        print(books, "Clean code");
+        find(books, "Clean code");
     }
 }
