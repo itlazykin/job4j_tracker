@@ -4,7 +4,7 @@ public class Shop {
     /**
      * Метод, который вернет индекс первой пустой ячейки.
      *
-     * @param products списаок, в котором будем искать.
+     * @param products список, в котором будем искать.
      * @return индекс первой пустой ячейки.
      */
     public static int indexOfNull(Product[] products) {
