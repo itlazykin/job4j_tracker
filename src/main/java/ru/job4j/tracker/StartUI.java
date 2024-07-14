@@ -36,23 +36,29 @@ public class StartUI {
                 }
             } else if (select == 2) {
                 System.out.println("=== Изменить заявку ===");
-                System.out.println("=== Введите id  ===");
+                System.out.println(" Введите номер  ");
                 int id = Integer.parseInt(scanner.nextLine());
-                System.out.println("=== Введите название новой заявки ===");
+                System.out.println(" Введите название новой заявки ");
                 String name = scanner.nextLine();
                 Item item = new Item(name);
                 if (tracker.replace(id, item)) {
-                    System.out.println("=== Заявка заменена ===");
+                    System.out.println(" Заявка заменена ");
                 } else {
                     System.out.println("Ошибка замены заявки.");
                 }
             } else if (select == 3) {
                 System.out.println("=== Удалить заявку ===");
-                System.out.println("=== Введите id  ===");
+                System.out.println(" Введите номер  ");
                 int id = Integer.parseInt(scanner.nextLine());
                 Item item = tracker.findById(id);
                 tracker.delete(id);
                 System.out.println(item != null ? "Заявка удалена успешно." : "Ошибка удаления заявки.");
+            } else if (select == 4) {
+                System.out.println("=== Поиск заявки по номер ===");
+                System.out.println(" Введите номер ");
+                int id = Integer.parseInt(scanner.nextLine());
+                Item item = tracker.findById(id);
+                System.out.println(item != null ? "Заявка найдена " + item : "Заявка " + id + " не найдена");
             }
         }
     }
@@ -60,7 +66,7 @@ public class StartUI {
     private void showMenu() {
         String[] menu = {
                 "Добавить новую заявку", "Показать все заявки", "Изменить заявку",
-                "Удалить заявку", "Показать заявку по id", "Показать заявки по имени",
+                "Удалить заявку", "Показать заявку по номеру", "Показать заявки по имени",
                 "Завершить программу"
         };
         System.out.println("Меню:");
