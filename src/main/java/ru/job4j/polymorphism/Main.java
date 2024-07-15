@@ -15,11 +15,14 @@ public class Main {
         vehicle.steer();
         vehicle.brake();
         fuel.refill();
-        Vehicle polySportCar = new TownCar();
+        Vehicle polySportCar = new SportCar();
         polySportCar.changeGear();
         polySportCar.accelerate();
         polySportCar.steer();
         polySportCar.brake();
         polySportCar.refill();
+        Vehicle.getDragCoefficient();
+        polySportCar.chargeBattery();
+        townCar.chargeBattery();
     }
 }
