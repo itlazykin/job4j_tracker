@@ -2,52 +2,52 @@ package ru.job4j.tracker;
 
 public class StartUI {
     public static void createItem(Input input, Tracker tracker) {
-        System.out.println("=== Creating a new application ===");
+        System.out.println("=== Create new Item ===");
         String name = input.askStr("Enter name: ");
         Item item = new Item(name);
         tracker.add(item);
-        System.out.println("The added application: " + item);
+        System.out.println("The Item added: " + item);
     }
 
     public static void findAllItems(Tracker tracker) {
-        System.out.println("=== Withdrawal of all applications ===");
+        System.out.println("=== Find of all Items ===");
         Item[] items = tracker.findAll();
         if (items.length > 0) {
             for (Item item : items) {
                 System.out.println(item);
             }
         } else {
-            System.out.println("The repository does not contain applications yet");
+            System.out.println("The repository does not contain Items yet");
         }
     }
 
     public static void replaceItem(Input input, Tracker tracker) {
-        System.out.println("=== Change application ===");
+        System.out.println("=== Change Item ===");
         int id = input.askInt(" Enter the number ");
-        String name = input.askStr(" Enter the name of the new application ");
+        String name = input.askStr(" Enter the name of the new Item ");
         Item item = new Item(name);
         if (tracker.replace(id, item)) {
-            System.out.println(" The application has been replaced ");
+            System.out.println(" The Item has been replaced ");
         } else {
-            System.out.println("Application replacement error.");
+            System.out.println("Item replacement error.");
         }
     }
 
     public static void deleteItem(Input input, Tracker tracker) {
-        System.out.println("=== Delete application ===");
+        System.out.println("=== Delete Item ===");
         int id = Integer.parseInt(input.askStr(" Enter the number "));
         Item item = tracker.findById(id);
         tracker.delete(id);
         System.out.println(
-                item != null ? "The application was deleted successfully." : "Request deletion error.");
+                item != null ? "The Item was deleted successfully." : "Request deletion error.");
     }
 
     public static void findItemById(Input input, Tracker tracker) {
-        System.out.println("=== Search for an application by number ===");
+        System.out.println("=== Search for an Item by number ===");
         int id = input.askInt(" Enter the number ");
         Item item = tracker.findById(id);
         System.out.println(
-                item != null ? "The application has been found " + item : "Application " + id + " not found");
+                item != null ? "The Item has been found " + item : "Item " + id + " not found");
     }
 
     public static void findItemByName(Input input, Tracker tracker) {
@@ -59,7 +59,7 @@ public class StartUI {
                 System.out.println(item);
             }
         } else {
-            System.out.println("Application " + name + " was not found");
+            System.out.println("Item " + name + " was not found");
         }
     }
 
@@ -88,9 +88,9 @@ public class StartUI {
 
     private void showMenu() {
         String[] menu = {
-                "Add a new application", "Show all applications", "Edit application",
-                "Delete application", "Show application by number", "Show applications by name",
-                "End the program"
+                "Add a new Item", "Show all Items", "Edit Item",
+                "Delete Item", "Show Item by number", "Show Item, by name",
+                "Exit"
         };
         System.out.println("Menu:");
         for (int i = 0; i < menu.length; i++) {
