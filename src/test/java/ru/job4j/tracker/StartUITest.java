@@ -57,24 +57,6 @@ class StartUITest {
     }
 
     @Test
-    void whenExit() {
-        Output output = new StubOutput();
-        Input input = new MockInput(
-                new String[]{"0"}
-        );
-        Tracker tracker = new Tracker();
-        UserAction[] actions = {
-                new Exit(output)
-        };
-        new StartUI(output).init(input, tracker, actions);
-        assertThat(output.toString()).isEqualTo(
-                "Menu:" + System.lineSeparator()
-                        + "0. Exit program" + System.lineSeparator()
-                        + "Goodbye" + System.lineSeparator()
-        );
-    }
-
-    @Test
     void whenReplaceItemTestOutputIsSuccessfully() {
         Output output = new StubOutput();
         Tracker tracker = new Tracker();
@@ -176,6 +158,46 @@ class StartUITest {
                         + "Menu:" + ln
                         + "0. Search for an Item by number" + ln
                         + "1. Exit program" + ln
+                        + "Goodbye" + ln
+        );
+    }
+
+    @Test
+    void whenInvalidExit() {
+        Output output = new StubOutput();
+        Input input = new MockInput(
+                new String[] {"1", "0"}
+        );
+        Tracker tracker = new Tracker();
+        UserAction[] actions = new UserAction[]{
+                new Exit(output)
+        };
+        new StartUI(output).init(input, tracker, actions);
+        String ln = System.lineSeparator();
+        assertThat(output.toString()).isEqualTo(
+                "Menu:" + ln
+                        + "0. Exit program" + ln
+                        + "Incorrect input, you can choose: 0..0" + ln
+                        + "Menu:" + ln
+                        + "0. Exit program" + ln
+                        + "Goodbye" + ln
+        );
+    }
+
+    @Test
+    void whenExit() {
+        Output output = new StubOutput();
+        Input input = new MockInput(
+                new String[]{"0"}
+        );
+        Tracker tracker = new Tracker();
+        UserAction[] actions = {
+                new Exit(output)
+        };
+        new StartUI(output).init(input, tracker, actions);
+        assertThat(output.toString()).isEqualTo(
+                "Menu:" + ln
+                        + "0. Exit program" + ln
                         + "Goodbye" + ln
         );
     }

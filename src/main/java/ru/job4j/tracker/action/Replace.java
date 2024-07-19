@@ -20,13 +20,13 @@ public class Replace implements UserAction {
     @Override
     public boolean execute(Input input, Tracker tracker) {
         output.println("=== Change Item ===");
-        int id = input.askInt(" Enter the number ");
+        int id = input.askInt(" Enter id ");
         String name = input.askStr(" Enter the name of the new Item ");
         Item item = new Item(name);
         if (tracker.replace(id, item)) {
             output.println(" The Item has been replaced ");
         } else {
-            output.println("Item replacement error.");
+            output.println("Item replacement error. Enter correct id.");
         }
         return true;
     }
