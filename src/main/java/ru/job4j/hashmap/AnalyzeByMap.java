@@ -6,9 +6,9 @@ public class AnalyzeByMap {
     public static double averageScore(List<Pupil> pupils) {
         int count = 0;
         double sum = 0;
-        for (Pupil p : pupils) {
-            for (Subject s : p.subjects()) {
-                sum += s.score();
+        for (Pupil pupil : pupils) {
+            for (Subject subject : pupil.subjects()) {
+                sum += subject.score();
                 count++;
             }
         }
@@ -17,12 +17,12 @@ public class AnalyzeByMap {
 
     public static List<Label> averageScoreByPupil(List<Pupil> pupils) {
         List<Label> result = new ArrayList<>();
-        for (Pupil p : pupils) {
+        for (Pupil pupil : pupils) {
             double sum = 0;
-            for (Subject s : p.subjects()) {
-                sum += s.score();
+            for (Subject subject : pupil.subjects()) {
+                sum += subject.score();
             }
-            result.add(new Label(p.name(), sum / p.subjects().size()));
+            result.add(new Label(pupil.name(), sum / pupil.subjects().size()));
         }
         return result;
     }
@@ -31,7 +31,7 @@ public class AnalyzeByMap {
         Map<String, Integer> tmp = new LinkedHashMap<>();
         for (Pupil pupil : pupils) {
             for (Subject subject : pupil.subjects()) {
-                tmp.put(subject.name(), tmp.getOrDefault(pupil.name(), 0) + subject.score());
+                tmp.put(subject.name(), tmp.getOrDefault(subject.name(), 0) + subject.score());
             }
         }
         List<Label> labels = new ArrayList<>();
@@ -43,10 +43,32 @@ public class AnalyzeByMap {
     }
 
     public static Label bestStudent(List<Pupil> pupils) {
-        return null;
+        Map<String, Integer> tmp = new LinkedHashMap<>();
+        for (Pupil pupil : pupils) {
+            for (Subject subject : pupil.subjects()) {
+                tmp.put(pupil.name(), tmp.getOrDefault(pupil.name(), 0) + subject.score());
+            }
+        }
+        List<Label> labels = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : tmp.entrySet()) {
+            labels.add(new Label(entry.getKey(), entry.getValue()));
+        }
+        labels.sort(Comparator.naturalOrder());
+        return labels.get(labels.size() - 1);
     }
 
     public static Label bestSubject(List<Pupil> pupils) {
-        return null;
+        Map<String, Integer> tmp = new LinkedHashMap<>();
+        for (Pupil pupil : pupils) {
+            for (Subject subject : pupil.subjects()) {
+                tmp.put(subject.name(), tmp.getOrDefault(subject.name(), 0) + subject.score());
+            }
+        }
+        List<Label> labels = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : tmp.entrySet()) {
+            labels.add(new Label(entry.getKey(), entry.getValue()));
+        }
+        labels.sort(Comparator.naturalOrder());
+        return labels.get(labels.size() - 1);
     }
 }
