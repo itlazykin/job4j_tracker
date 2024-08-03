@@ -2,6 +2,7 @@ package ru.job4j.collection;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class JobSorter {
@@ -33,5 +34,21 @@ public class JobSorter {
         );
         jobsComparatorDescName.sort(new SortDescByNameJob());
         System.out.println(jobsComparatorDescName);
+        System.out.println();
+        List<Job> jobs = Arrays.asList(
+                new Job("Fix bug", 1),
+                new Job("Fix bug", 4),
+                new Job("Fix bug", 2),
+                new Job("Fix bug", 0)
+        );
+        jobs.sort(new JobDescByName().thenComparing(new JobDescByPriority()));
+        System.out.println(jobs);
+        System.out.println();
+        Comparator<Job> combine = new JobDescByNameLength()
+                .thenComparing(new JobDescByName())
+                .thenComparing(new JobDescByPriority());
+        jobs.sort(combine);
+        System.out.println();
+        System.out.println(jobs);
     }
 }
