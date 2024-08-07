@@ -34,6 +34,9 @@ public class FunctionInterfaceUsage {
         Predicate<String> predicate = string -> string.isEmpty();
         System.out.println("Строка пустая: " + predicate.test(""));
         System.out.println("Строка пустая: " + predicate.test("test"));
+        BiPredicate<String, Integer> condition = (string, number) -> string.contains(number.toString());
+        System.out.println("Строка содержит подстроку: " + condition.test("Name123", 123));
+        System.out.println("Строка содержит подстроку: " + condition.test("Name", 123));
         System.out.println();
         System.out.println("Function используется для преобразования входного параметра или двух параметров "
                 + "(для Bi-формы этого функционального интерфейса) в какое-либо значение,"
