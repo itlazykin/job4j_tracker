@@ -50,5 +50,19 @@ public class JobSorter {
         jobs.sort(combine);
         System.out.println();
         System.out.println(jobs);
+        System.out.println();
+        System.out.println();
+        List<Job> job = Arrays.asList(
+                new Job("Fix bug", 1),
+                new Job("Fix bug", 4),
+                new Job("Fix bug", 2),
+                new Job("X task", 0)
+        );
+        job.sort(new JobDescByName().thenComparing(new JobDescByPriority()));
+        System.out.println(job);
+        Comparator<Job> compareName = (left, right) -> right.name().compareTo(left.name());
+        Comparator<Job> comparePriority = (left, right) -> Integer.compare(right.priority(), left.priority());
+        Comparator<Job> comb = compareName.thenComparing(comparePriority);
+        job.sort(comb);
     }
 }
