@@ -20,7 +20,6 @@ public class College {
     }
 
     public Student findByAccount(String account) {
-
         return students.keySet()
                 .stream()
                 .filter(student -> student.account().equals(account))
