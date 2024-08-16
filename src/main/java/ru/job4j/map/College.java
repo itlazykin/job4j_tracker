@@ -1,6 +1,7 @@
 package ru.job4j.map;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class College {
@@ -19,17 +20,18 @@ public class College {
         return null;
     }
 
-    public Student findByAccount(String account) {
-        return students.keySet()
+    public Optional<Student> findByAccount(String account) {
+        return Optional.of(students.keySet()
                 .stream()
-                .filter(student -> student.account().equals(account))
-                .findFirst()
-                .orElse(null);
+                .filter(s -> s.account().equals(account))
+                .findFirst())
+                .get();
+
     }
 
     public Subject findBySubjectNameNoStream(String account, String name) {
-        Student student = findByAccount(account);
-        if (student != null) {
+        Optional<Student> student = findByAccount(account);
+        if (student.isPresent()) {
             Set<Subject> subjects = students.get(student);
             for (Subject subject : subjects) {
                 if (subject.name().equals(name)) {
@@ -40,29 +42,11 @@ public class College {
         return null;
     }
 
-    public Subject findBySubjectName(String account, String name) {
-        Student student = findByAccount(account);
-        if (student == null) {
-            return null;
-        }
-        return students.get(student)
+    public Optional<Subject> findBySubjectName(String account, String name) {
+        return findByAccount(account).flatMap(v -> Optional.of(students.get(v)
                 .stream()
-                .filter(s -> s.name().equals(name))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public static void main(String[] args) {
-        Map<Student, Set<Subject>> students = Map.of(new Student("Student", "000001", "201-18-15"),
-                Set.of(
-                        new Subject("Math", 70),
-                        new Subject("English", 85)
-                )
-        );
-        College college = new College(students);
-        Student student = college.findByAccount("000001");
-        System.out.println("Found student - " + student);
-        Subject english = college.findBySubjectName("000001", "English");
-        System.out.println("Score = " + english.score());
+                .filter(subject -> subject.name().equals(name))
+                .findFirst())
+                .get());
     }
 }
