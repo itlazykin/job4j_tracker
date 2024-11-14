@@ -1,20 +1,33 @@
 package ru.job4j.polymorphism;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
 public class FileStore implements Store {
-    private String path;
+    private final Path filePath;
 
-    public FileStore() { }
-
-    public FileStore(String path) {
-        this.path = path;
+    public FileStore() {
+        this.filePath = null;
     }
 
     public void save(String data) {
-        //Тут реализация хранения данные в файле
+        try {
+            assert filePath != null;
+            Files.writeString(filePath, data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            System.out.println("Ошибка при сохранении данных: " + e.getMessage());
+        }
     }
 
     public String read() {
-        // Тут чтение файла
+        try {
+            assert filePath != null;
+            return Files.readString(filePath);
+        } catch (IOException e) {
+            System.out.println("Ошибка при чтении данных: " + e.getMessage());
+        }
         return null;
     }
 }
