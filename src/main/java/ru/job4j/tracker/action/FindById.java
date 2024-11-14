@@ -1,25 +1,31 @@
 package ru.job4j.tracker.action;
 
-import ru.job4j.tracker.*;
+import ru.job4j.tracker.Store;
+import ru.job4j.tracker.input.Input;
+import ru.job4j.tracker.Item;
+import ru.job4j.tracker.output.Output;
+
+import java.util.Objects;
 
 public class FindById implements UserAction {
-    private final Output output;
+    private final Output out;
 
-    public FindById(Output output) {
-        this.output = output;
+    public FindById(Output out) {
+        this.out = out;
     }
 
     @Override
     public String name() {
-        return "Search for an Item by number";
+        return "Find item by id";
     }
 
     @Override
-    public boolean execute(Input input, Tracker tracker) {
-        output.println("=== Search for an Item by number ===");
-        int id = input.askInt(" Enter the number ");
+    public boolean execute(Input input, Store tracker) {
+        out.println("=== Find item by id ===");
+        int id = input.askInt("Enter id: ");
         Item item = tracker.findById(id);
-        output.println(item != null ? "The Item has been found " + item : "Item " + id + " not found");
+        out.println(Objects.requireNonNullElseGet(
+                item, () -> "Заявка с введенным id: " + id + " не найдена."));
         return true;
     }
 }

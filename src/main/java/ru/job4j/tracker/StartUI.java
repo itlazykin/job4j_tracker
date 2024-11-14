@@ -1,24 +1,29 @@
 package ru.job4j.tracker;
 
 import ru.job4j.tracker.action.*;
+import ru.job4j.tracker.input.ConsoleInput;
+import ru.job4j.tracker.input.Input;
+import ru.job4j.tracker.input.ValidateInput;
+import ru.job4j.tracker.output.ConsoleOutput;
+import ru.job4j.tracker.output.Output;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StartUI {
-    private final Output output;
+    private final Output out;
 
-    public StartUI(Output output) {
-        this.output = output;
+    public StartUI(Output out) {
+        this.out = out;
     }
 
-    public void init(Input input, Tracker tracker, List<UserAction> actions) {
+    public void init(Input input, Store tracker, List<UserAction> actions) {
         boolean run = true;
         while (run) {
             showMenu(actions);
             int select = input.askInt("Select: ");
             if (select < 0 || select >= actions.size()) {
-                output.println("Incorrect input, you can choose: 0.." + (actions.size() - 1));
+                out.println("Wrong input, you can select: 0 .. " + (actions.size() - 1));
                 continue;
             }
             UserAction action = actions.get(select);
@@ -27,24 +32,24 @@ public class StartUI {
     }
 
     private void showMenu(List<UserAction> actions) {
-        output.println("Menu:");
-        for (int i = 0; i < actions.size(); i++) {
-            output.println(i + ". " + actions.get(i).name());
+        out.println("Menu:");
+        int index = 0;
+        for (UserAction action : actions) {
+            out.println(index++ + ". " + action.name());
         }
     }
 
     public static void main(String[] args) {
         Output output = new ConsoleOutput();
         Input input = new ValidateInput(output, new ConsoleInput());
-        Tracker tracker = new Tracker();
-        List<UserAction> actions = new ArrayList<>();
-        actions.add(new Create(output));
-        actions.add(new FindAll(output));
-        actions.add(new Replace(output));
-        actions.add(new Delete(output));
-        actions.add(new FindById(output));
-        actions.add(new FindByName(output));
-        actions.add(new Exit(output));
+        Store tracker = new SqlTracker();
+        List<UserAction> actions = Arrays.asList(new Create(output),
+                new FindAll(output),
+                new Replace(output),
+                new Delete(output),
+                new FindById(output),
+                new FindByName(output),
+                new Exit(output));
         new StartUI(output).init(input, tracker, actions);
     }
 }

@@ -2,41 +2,31 @@ package ru.job4j.tracker;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
 class ItemTest {
     @Test
-    void whenItemDescByName() {
-        List<Item> items = Arrays.asList(
-                new Item(2, "B"),
-                new Item(3, "C"),
-                new Item(1, "A")
-        );
-        items.sort(new ItemDescByName());
-        List<Item> expected = Arrays.asList(
-                new Item(3, "C"),
-                new Item(2, "B"),
-                new Item(1, "A")
-        );
+    public void whenSortAscByNameTrue() {
+        Item item1 = new Item("М");
+        Item item2 = new Item("П");
+        Item item3 = new Item("О");
+        List<Item> items = new ArrayList<>(List.of(item1, item2, item3));
+        List<Item> expected = new ArrayList<>(List.of(item1, item3, item2));
+        items.sort(new ItemAscByName());
         assertThat(items).isEqualTo(expected);
     }
 
     @Test
-    void whenItemAscByName() {
-        List<Item> items = Arrays.asList(
-                new Item(2, "B"),
-                new Item(3, "C"),
-                new Item(1, "A")
-        );
-        items.sort(new ItemAscByName());
-        List<Item> expected = Arrays.asList(
-                new Item(1, "A"),
-                new Item(2, "B"),
-                new Item(3, "C")
-        );
+    public void whenSortDescByNameTrue() {
+        Item item1 = new Item("М");
+        Item item2 = new Item("П");
+        Item item3 = new Item("О");
+        List<Item> items = new ArrayList<>(List.of(item1, item2, item3));
+        List<Item> expected = new ArrayList<>(List.of(item2, item3, item1));
+        items.sort(new ItemDescByName());
         assertThat(items).isEqualTo(expected);
     }
 }
