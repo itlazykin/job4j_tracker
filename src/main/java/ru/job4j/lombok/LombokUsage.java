@@ -5,5 +5,6 @@ public class LombokUsage {
         var bird = new BirdData();
         bird.setAge(420);
         System.out.println(bird);
+        System.out.println();
     }
 }
