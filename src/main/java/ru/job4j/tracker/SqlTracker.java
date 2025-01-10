@@ -77,6 +77,16 @@ public class SqlTracker implements Store {
     }
 
     @Override
+    public void deleteAll() {
+        try (PreparedStatement statement =
+                     connection.prepareStatement("DELETE FROM items")) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void delete(Integer id) {
         if (findById(id) != null) {
             try (PreparedStatement preparedStatement =

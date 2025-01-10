@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HbmTracker implements Store {
+
     private final StandardServiceRegistry registry = new StandardServiceRegistryBuilder().configure().build();
+
     private final SessionFactory sf = new MetadataSources(registry).buildMetadata().buildSessionFactory();
 
     @Override
@@ -44,6 +46,21 @@ public class HbmTracker implements Store {
             session.close();
         }
         return result;
+    }
+
+    @Override
+    public void deleteAll() {
+        var session = sf.openSession();
+        try {
+            session.beginTransaction();
+            session.createQuery("DELETE Item")
+                    .executeUpdate();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
     }
 
     @Override
@@ -119,5 +136,9 @@ public class HbmTracker implements Store {
     @Override
     public void close() {
         StandardServiceRegistryBuilder.destroy(registry);
+    }
+
+    public SessionFactory getSessionFactory() {
+        return sf;
     }
 }
