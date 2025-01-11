@@ -34,6 +34,13 @@ public class SqlTracker implements Store {
         }
     }
 
+    private Item createItemFromResultSet(ResultSet resultSet) throws SQLException {
+        return new Item(
+                resultSet.getInt("id"),
+                resultSet.getString("name"),
+                resultSet.getTimestamp("created").toLocalDateTime());
+    }
+
     @Override
     public void close() throws SQLException {
         if (connection != null) {
@@ -43,121 +50,95 @@ public class SqlTracker implements Store {
 
     @Override
     public Item add(Item item) {
-        try (PreparedStatement preparedStatement =
-                     connection.prepareStatement("INSERT INTO items(name, created) values (?, ?)",
-                             Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setString(1, item.getName());
-            preparedStatement.setTimestamp(2, Timestamp.valueOf(item.getCreated()));
-            preparedStatement.execute();
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+        try (PreparedStatement statement = connection.
+                prepareStatement("INSERT INTO items(name, created) VALUES(?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, item.getName());
+            statement.setTimestamp(2, Timestamp.valueOf(item.getCreated()));
+            statement.executeUpdate();
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     item.setId(generatedKeys.getInt(1));
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return item;
     }
 
     @Override
-    public boolean replace(Integer id, Item item) {
-        boolean result = findById(id) != null;
-        if (result) {
-            try (PreparedStatement preparedStatement =
-                         connection.prepareStatement("UPDATE items set name = ? where id = ?")) {
-                preparedStatement.setString(1, item.getName());
-                preparedStatement.setInt(2, id);
-                preparedStatement.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public boolean replace(int id, Item item) {
+        boolean result = false;
+        try (PreparedStatement statement = connection.
+                prepareStatement("UPDATE items SET name = ?, created = ? WHERE id = ?")) {
+            statement.setString(1, item.getName());
+            statement.setTimestamp(2, Timestamp.valueOf(item.getCreated()));
+            statement.setInt(3, id);
+            result = statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return result;
     }
 
     @Override
-    public void deleteAll() {
-        try (PreparedStatement statement =
-                     connection.prepareStatement("DELETE FROM items")) {
+    public void delete(int id) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "DELETE FROM items WHERE id = ?")) {
+            statement.setInt(1, id);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-    }
-
-    @Override
-    public void delete(Integer id) {
-        if (findById(id) != null) {
-            try (PreparedStatement preparedStatement =
-                         connection.prepareStatement("DELETE FROM items WHERE id = ?")) {
-                preparedStatement.setInt(1, id);
-                preparedStatement.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 
     @Override
     public List<Item> findAll() {
-        List<Item> result = new ArrayList<>();
-        try (PreparedStatement preparedStatement =
-                     connection.prepareStatement("SELECT * FROM items")) {
-            ResultSet rs = preparedStatement.executeQuery();
-            while (rs.next()) {
-                result.add(createItem(rs));
+        List<Item> items = new ArrayList<>();
+        try (PreparedStatement statement = connection.
+                prepareStatement("SELECT * FROM items")) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    items.add(createItemFromResultSet(resultSet));
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return result;
+        return items;
     }
 
     @Override
     public List<Item> findByName(String key) {
-        List<Item> result = new ArrayList<>();
-        try (PreparedStatement preparedStatement =
-                     connection.prepareStatement("SELECT * FROM items WHERE name = ?")) {
-            preparedStatement.setString(1, key);
-            ResultSet rs = preparedStatement.executeQuery();
-            while (rs.next()) {
-                result.add(createItem(rs));
+        List<Item> items = new ArrayList<>();
+        try (PreparedStatement statement = connection.
+                prepareStatement("SELECT * FROM items WHERE name = ?")) {
+            statement.setString(1, key);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    items.add(createItemFromResultSet(resultSet));
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return result;
+        return items;
     }
 
     @Override
-    public Item findById(Integer id) {
+    public Item findById(int id) {
         Item item = null;
-        try (PreparedStatement preparedStatement =
-                     connection.prepareStatement("SELECT * FROM items WHERE id = ?"
-                     )) {
-            preparedStatement.setInt(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
-            while (rs.next()) {
-                item = createItem(rs);
+        try (PreparedStatement statement = connection.
+                prepareStatement("SELECT * FROM items WHERE id = ?")) {
+            statement.setInt(1, id);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    item = createItemFromResultSet(resultSet);
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return item;
-    }
-
-    private Item createItem(ResultSet rs) {
-        Item result = null;
-        try {
-            result = new Item(rs.getInt(1),
-                    rs.getString(2),
-                    rs.getTimestamp(3).toLocalDateTime()
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
     }
 }

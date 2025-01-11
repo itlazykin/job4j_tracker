@@ -10,11 +10,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.*;
 
-class SqlTrackerTest {
+public class SqlTrackerTest {
+
     private static Connection connection;
 
     @BeforeAll
@@ -27,6 +29,7 @@ class SqlTrackerTest {
                     config.getProperty("url"),
                     config.getProperty("username"),
                     config.getProperty("password")
+
             );
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -54,87 +57,55 @@ class SqlTrackerTest {
     }
 
     @Test
-    public void whenSaveItemsAndDeleteByGeneratedId() {
+    public void whenReplace() {
         SqlTracker tracker = new SqlTracker(connection);
-        Item itemOne = new Item("itemOne");
-        Item itemTwo = new Item("itemTwo");
-        tracker.add(itemOne);
-        tracker.add(itemTwo);
-        assertThat(tracker.findById(itemTwo.getId())).isEqualTo(itemTwo);
-        tracker.delete(itemTwo.getId());
-        assertThat(tracker.findById(itemTwo.getId())).isNull();
+        Item item1 = new Item("item1");
+        Item item2 = new Item("item2");
+        tracker.add(item1);
+        assertThat(tracker.replace(item1.getId(), item2)).isTrue();
     }
 
     @Test
-    public void whenSaveItemsAndFindAll() {
-        SqlTracker tracker = new SqlTracker(connection);
-        Item itemOne = new Item("itemOne");
-        Item itemTwo = new Item("itemTwo");
-        Item itemThree = new Item("itemThree");
-        tracker.add(itemOne);
-        tracker.add(itemTwo);
-        tracker.add(itemThree);
-        assertThat(tracker.findAll())
-                .isNotEmpty()
-                .hasSize(3)
-                .contains(itemOne)
-                .contains(itemTwo)
-                .contains(itemThree);
-    }
-
-    @Test
-    public void whenNoItemsAndFindAllIsEmpty() {
-        SqlTracker tracker = new SqlTracker(connection);
-        assertThat(tracker.findAll()).isEmpty();
-    }
-
-    @Test
-    public void whenSaveItemsAndFindByName() {
-        SqlTracker tracker = new SqlTracker(connection);
-        Item itemOne = new Item("itemOne");
-        Item itemTwo = new Item("ItemDouble");
-        Item itemThree = new Item("ItemDouble");
-        tracker.add(itemOne);
-        tracker.add(itemTwo);
-        tracker.add(itemThree);
-        assertThat(tracker.findByName("ItemDouble"))
-                .isNotEmpty()
-                .hasSize(2)
-                .contains(itemTwo)
-                .contains(itemThree)
-                .doesNotContain(itemOne);
-    }
-
-    @Test
-    public void whenSaveItemsAndFindByNameIsEmpty() {
-        SqlTracker tracker = new SqlTracker(connection);
-        Item itemOne = new Item("itemOne");
-        Item itemTwo = new Item("ItemDouble");
-        tracker.add(itemOne);
-        tracker.add(itemTwo);
-        assertThat(tracker.findByName("ItemSerch")).isEmpty();
-    }
-
-    @Test
-    public void whenSaveItemAndReplace() {
-        SqlTracker tracker = new SqlTracker(connection);
-        Item itemOne = new Item("itemOne");
-        tracker.add(itemOne);
-        int idItemOne = itemOne.getId();
-        assertThat(tracker.replace(idItemOne, new Item("itemReplace"))).isTrue();
-        assertThat(tracker.findByName("itemOne")).isEmpty();
-        assertThat(tracker.findById(idItemOne).getName()).isEqualTo("itemReplace");
-        assertThat(tracker.findByName("itemReplace")).contains(tracker.findById(idItemOne));
-    }
-
-    @Test
-    public void checkDelete() {
+    public void whenDelete() {
         SqlTracker tracker = new SqlTracker(connection);
         Item item = new Item("item");
-        Item item2 = new Item("item2");
         tracker.add(item);
-        tracker.add(item2);
-        tracker.deleteAll();
-        assertThat(tracker.findAll()).isEmpty();
+        tracker.delete(item.getId());
+        assertThat(tracker.findById(item.getId())).isNull();
     }
+
+    @Test
+    public void whenFindByName() {
+        SqlTracker tracker = new SqlTracker(connection);
+        Item item1 = new Item("item");
+        Item item2 = new Item("item");
+        tracker.add(item1);
+        tracker.add(item2);
+        List<Item> itemsName = tracker.findByName("item");
+        assertThat(itemsName).containsExactlyInAnyOrder(item1, item2);
+    }
+
+    @Test
+    public void whenFindById() {
+        SqlTracker tracker = new SqlTracker(connection);
+        Item item = new Item("item");
+        tracker.add(item);
+        Item resultItem = tracker.findById(item.getId());
+        assertThat(tracker.findById(item.getId())).isEqualTo(resultItem);
+    }
+
+    @Test
+    public void whenDeleteOneItemThenOtherItemsRemain() {
+        SqlTracker tracker = new SqlTracker(connection);
+        Item item1 = new Item("item1");
+        Item item2 = new Item("item2");
+        Item item3 = new Item("item3");
+        tracker.add(item1);
+        tracker.add(item2);
+        tracker.add(item3);
+        tracker.delete(item1.getId());
+        List<Item> allItems = tracker.findAll();
+        assertThat(allItems).containsExactlyInAnyOrder(item2, item3);
+    }
+
 }

@@ -1,82 +1,118 @@
 package ru.job4j.tracker;
 
+import org.hibernate.Session;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 class HbmTrackerTest {
 
-    @Test
-    public void whenAddNewItemThenTrackerHasSameItem() throws Exception {
-        try (var tracker = new HbmTracker()) {
-            Item item = new Item();
-            item.setName("test1");
-            tracker.add(item);
-            Item result = tracker.findById(item.getId());
-            assertThat(result.getName()).isEqualTo(item.getName());
-        }
+    private HbmTracker tracker;
+
+    @BeforeEach
+    void setUp() {
+        tracker = new HbmTracker();
+    }
+
+    @AfterEach
+    void tearDown() {
+        tracker.close();
+    }
+
+    private void clearDatabase() {
+        Session session = tracker.getSessionFactory().openSession();
+        session.beginTransaction();
+        session.createQuery("DELETE FROM Item").executeUpdate();
+        session.getTransaction().commit();
+        session.close();
     }
 
     @Test
-    public void whenAddNewItemThenReplaceIdAndNameItem() {
-        try (var tracker = new HbmTracker()) {
-            Item item = new Item("test1");
-            tracker.add(item);
-            var result = tracker.replace(item.getId(), new Item("test2"));
-            assertThat(tracker.findById(item.getId()).getName()).isEqualTo("test2");
-            assertThat(result).isTrue();
-        }
+    void whenAddItemThenFindIt() {
+        Item item = new Item();
+        item.setName("Test Item");
+        tracker.add(item);
+        Item expected = tracker.findById(item.getId());
+        assertEquals(item, expected);
+        clearDatabase();
     }
 
     @Test
-    public void whenAddNewItemThenDeleteItem() {
-        try (var tracker = new HbmTracker()) {
-            Item item = new Item(1, "test1");
-            tracker.add(item);
-            tracker.delete(item.getId());
-            assertThat(tracker.findById(item.getId())).isNull();
-        }
+    void whenReplaceItemThenFindUpdatedItem() {
+        Item item = new Item();
+        item.setName("Old Name");
+        tracker.add(item);
+        Item updatedItem = new Item();
+        updatedItem.setName("New Name");
+        boolean replaced = tracker.replace(item.getId(), updatedItem);
+        assertTrue(replaced);
+        Item expected = tracker.findById(item.getId());
+        assertNotNull(expected);
+        assertEquals("New Name", expected.getName());
+        clearDatabase();
     }
 
     @Test
-    public void whenAddNewItemsThenDeleteAll() {
-        try (var tracker = new HbmTracker()) {
-            Item item1 = new Item("test1");
-            Item item2 = new Item("test2");
-            Item item3 = new Item("test3");
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            tracker.deleteAll();
-            assertThat(tracker.findAll()).isEmpty();
-        }
+    void whenDeleteItemThenNotFound() {
+        Item item = new Item();
+        item.setName("To Be Deleted");
+        tracker.add(item);
+        tracker.delete(item.getId());
+        Item expected = tracker.findById(item.getId());
+        assertNull(expected);
+        clearDatabase();
     }
 
     @Test
-    public void whenAddNewItemsThenFindAll() {
-        try (var tracker = new HbmTracker()) {
-            Item item1 = new Item("test1");
-            Item item2 = new Item("test2");
-            Item item3 = new Item("test3");
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            assertThat(tracker.findAll()).isEqualTo(List.of(item1, item2, item3));
-        }
+    void whenFindAllThenReturnAllItems() {
+        Item item1 = new Item();
+        item1.setName("Item 1");
+        Item item2 = new Item();
+        item2.setName("Item 2");
+        tracker.add(item1);
+        tracker.add(item2);
+        List<Item> allItems = tracker.findAll();
+        assertEquals(2, allItems.size());
+        assertTrue(allItems.contains(item1));
+        assertTrue(allItems.contains(item2));
+        clearDatabase();
     }
 
     @Test
-    public void whenAddNewItemsThenFindByName() {
-        try (var tracker = new HbmTracker()) {
-            tracker.deleteAll();
-            Item item1 = new Item("test1");
-            Item item2 = new Item("test2");
-            Item item3 = new Item("test2");
-            tracker.add(item1);
-            tracker.add(item2);
-            tracker.add(item3);
-            assertThat(tracker.findByName("test2")).isEqualTo(List.of(item2, item3));
-        }
+    void whenFindByNameThenReturnMatchingItems() {
+        Item item1 = new Item();
+        item1.setName("Same Name");
+        Item item2 = new Item();
+        item2.setName("Same Name");
+        Item item3 = new Item();
+        item3.setName("Different Name");
+        tracker.add(item1);
+        tracker.add(item2);
+        tracker.add(item3);
+        List<Item> foundItems = tracker.findByName("Same Name");
+        assertEquals(2, foundItems.size());
+        assertTrue(foundItems.contains(item1));
+        assertTrue(foundItems.contains(item2));
+        clearDatabase();
+    }
+
+    @Test
+    void whenFindByIdThenReturnItem() {
+        Item item = new Item();
+        item.setName("Unique Item");
+        tracker.add(item);
+        Item expected = tracker.findById(item.getId());
+        assertNotNull(expected);
+        assertEquals(item, expected);
+        clearDatabase();
+    }
+
+    @Test
+    void whenFindByIdNonExistingThenReturnNull() {
+        Item expected = tracker.findById(999);
+        assertNull(expected);
+        clearDatabase();
     }
 }
